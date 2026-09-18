@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.tiaolista.model.Pessoa
 import com.example.tiaolista.model.Veiculo
 
 
@@ -121,7 +122,63 @@ class OficinaViewModel : ViewModel() {
 
     // --- Adicionar à OficinaViewModel ---
 
-    private val listaPessoas
+    private val listaPessoas = mutableListOf<Pessoa>()
 
+    var contaPessoa by mutableStateOf(0)
+        private  set
+
+    var exibirCadastroPessoa by mutableStateOf(false)
+        private set
+
+    var cpfNaoencontrado by mutableStateOf(false)
+        private set
+
+    var cpf by mutableStateOf("")
+    private set
+
+    var nome by mutableStateOf("")
+        private set
+
+    var ddd by mutableStateOf("")
+    private  set
+
+    var telefone by mutableStateOf("")
+        private  set
+
+
+    fun atualizarCpf(texto: String) {
+        cpf = texto.filter {it.isDigit() }.take(11)
+    }
+    fun atualizarNome(texto: String){
+        nome = texto
+    }
+
+    fun atualizarDdd(texto: String){
+        ddd = texto.filter { it.isDigit() }.take(11)
+    }
+
+    fun atualizarTelefone(texto: String){
+        telefone = texto.filter { it.isDigit() }.take(9)
+    }
+
+    fun buscarCpf(){
+        if(cpf.isBlank()) return
+
+        val pessoaEncontrada = listaPessoas.find { it.cpf == cpf}
+
+        if(pessoaEncontrada == null) {
+            cpfNaoencontrado = true
+
+        } else {
+            cpfNaoencontrado = false
+            nome = pessoaEncontrada.nome
+            ddd = pessoaEncontrada.ddd
+            telefone = pessoaEncontrada.telefone
+            exibirCadastroVeiculo = true.
+        }
+    }
 }
+
+
+
 
