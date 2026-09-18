@@ -24,7 +24,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,13 +34,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tiaolista.ui.theme.OficinaTiao01Theme
 import com.example.tiaolista.viewModel.OficinaViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import com.example.tiaolista.R
-
-
+import androidx.compose.material3.TopAppBarDefaults
+import com.example.tiaolista.CadastroVeiculo
 
 val AmareloClaro = Color(0xFFE6D690)
 class MainActivity : ComponentActivity() {
@@ -64,13 +61,26 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TelaPrincipal() {
+    val viewModel: OficinaViewModel = viewModel()
+
     Scaffold(
         topBar = {
             TopAppBar(
+
                 title = {
-                    Text(text = "Oficina do Tião",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold)
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Oficina do Tião",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(text = "Carros: ${viewModel.contaCarro}",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults
                     .topAppBarColors(containerColor = AmareloClaro)
@@ -79,6 +89,7 @@ fun TelaPrincipal() {
     ) { paddingValues ->
         OficinaTiaoAbertura(
             modifier = Modifier.padding(paddingValues)
+            ,viewModel
         )
     }
 }
@@ -86,8 +97,17 @@ fun TelaPrincipal() {
 @Composable
 fun OficinaTiaoAbertura(
     modifier: Modifier = Modifier
+    ,viewModel: OficinaViewModel
 ) {
     val viewModel: OficinaViewModel = viewModel()
+
+    if (viewModel.exibirCadastroVeiculo) {
+        CadastroVeiculo(
+            viewModel = viewModel,
+            modifier = modifier
+        )
+        return
+    }
 
     Box(modifier = modifier.fillMaxSize()
     ) {
@@ -103,7 +123,8 @@ fun OficinaTiaoAbertura(
                 bottom = 30.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom
-        ) {
+        )
+        {
             OutlinedTextField(value =viewModel.placa,
                 onValueChange = { texto ->
                     viewModel.atualizarPlaca(texto)
@@ -142,40 +163,31 @@ fun OficinaTiaoAbertura(
                 modifier = Modifier.fillMaxWidth()
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = AmareloClaro
-                )
+                    containerColor = AmareloClaro)
             ) {Text(text = "Buscar",
                 color = Color.Black,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold)
             }
             if (viewModel.placaNaoEncontrada) {
-                Text(
-                    text = "Cadastrar placa?",
+                Text(text = "Cadastrar placa?",
                     fontSize = 40.sp,
-                    color = Color.White
-                )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 24.dp),
+                    color = Color.White)
+                Row(modifier = Modifier.fillMaxWidth()
+                    .padding(vertical = 24.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
-                    Text(
-                        text = "Sim",
+                    Text(text = "Sim",
                         fontSize = 40.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Yellow,
                         modifier = Modifier.clickable {
-                            // chamar próxima tela
+                            viewModel.abrirCadastroVeiculo()
                         }
                     )
 
-                    Text(
-                        text = "Não",
+                    Text(text = "Não",
                         fontSize = 40.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Yellow,
@@ -187,11 +199,10 @@ fun OficinaTiaoAbertura(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            Button(onClick = {// Pessoas
-            },
+
+            Button(onClick = {/* Pessoas */ },
                 modifier = Modifier.fillMaxWidth()
                     .height(56.dp),
-
                 colors = ButtonDefaults.buttonColors(
                     containerColor = AmareloClaro
                 )
@@ -204,12 +215,10 @@ fun OficinaTiaoAbertura(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            Button(onClick = {// Outros
-            },
 
+            Button(onClick = {/* Outros */},
                 modifier = Modifier.fillMaxWidth()
                     .height(56.dp),
-
                 colors = ButtonDefaults.buttonColors(
                     containerColor = AmareloClaro)
             ) {
@@ -221,90 +230,5 @@ fun OficinaTiaoAbertura(
             }
         }
     }
-
-    //Outras Telas
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun TelaCadastroCarro(navController: NavController) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Cadastrar Veículo") },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = AmareloClaro)
-                )
-            }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Formulário de Cadastro do Carro", fontSize = 24.sp)
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { navController.popBackStack() }) {
-                    Text("Voltar")
-                }
-            }
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun TelaContatos(navController: NavController) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Contatos dos Donos") },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = AmareloClaro)
-                )
-            }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Lista de Clientes/Donos", fontSize = 24.sp)
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { navController.popBackStack() }) {
-                    Text("Voltar")
-                }
-            }
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun TelaOutros(navController: NavController) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Outras Opções") },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = AmareloClaro)
-                )
-            }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(text = "Configurações e Outros Serviços", fontSize = 24.sp)
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { navController.popBackStack() }) {
-                    Text("Voltar")
-                }
-            }
-        }
-    }
 }
+
