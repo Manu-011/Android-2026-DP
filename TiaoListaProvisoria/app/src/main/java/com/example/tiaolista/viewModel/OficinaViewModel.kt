@@ -216,6 +216,17 @@ class OficinaViewModel : ViewModel() {
         cpfNaoEncontrado = false
         exibirCadastroPessoa = false
     }
+
+    enum class ModoTela { VEICULO, PESSOA }
+
+    var modoAtual by mutableStateOf(ModoTela.VEICULO)
+        private set
+
+    fun alternarModo(novoModo: ModoTela) {
+        reiniciarTela()
+        reiniciarTelaPessoa()
+        modoAtual = novoModo
+    }
 }
 
 
